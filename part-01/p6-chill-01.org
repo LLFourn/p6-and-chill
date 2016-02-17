@@ -224,8 +224,7 @@
    .say for Date.today ..^ Date.new('2016-02-29');
    #+end_src
 
-   #+RESULTS:
-   #+begin_example
+   #+BEGIN_SRC
    Nights before leap day:
    2016-02-16
    2016-02-17
@@ -240,7 +239,7 @@
    2016-02-26
    2016-02-27
    2016-02-28
-#+end_example
+   #+END_SRC
 
 ** p5 2 p6
    Let's do some p5 to p6 to warm up.
