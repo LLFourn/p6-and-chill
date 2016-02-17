@@ -1,0 +1,511 @@
+#+TITLE: Perl 6 & chill
+#+EMAIL: lloyd.fourn@gmail.com
+#+AUTHOR: Lloyd Fournier
+
+#+STARTUP: inlineimages
+
+* Panic
+  December 16, 2015
+
+  The night before the most destabalising events in a generation.
+
+** Tomorrow
+   The Federal Reserve will raise interest rates for the first time in
+   *9* years.
+
+** Some time after that
+   The first version of Perl 6 will be released
+
+** DOOM
+   The rate rise will put pressure on the financial system.
+
+   Perl 6 will put thousands of Pascal's Triangle Engineers out of work.
+
+   #+name: Pascal's Triangle
+   #+begin_src perl6
+   ([1], -> @prev { [0, |@prev Z+ |@prev, 0] } ... *)[^10].join("\n").say;
+   #+end_src
+
+   #+RESULTS: Pascal's Triangle
+   #+begin_example
+   1
+   1 1
+   1 2 1
+   1 3 3 1
+   1 4 6 4 1
+   1 5 10 10 5 1
+   1 6 15 20 15 6 1
+   1 7 21 35 35 21 7 1
+   1 8 28 56 70 56 28 8 1
+   1 9 36 84 126 126 84 36 9 1
+#+end_example
+
+   We're doomed
+
+*** DOOM
+    [[./img/cameliadoom_smaller.png]]
+
+*** But anyway
+   We'll see if we can manage to chill.
+
+   #+BEGIN_SRC perl6
+   say "we are going to $*PERL & chill";
+   #+END_SRC
+   #+RESULTS:
+   : we are going to Perl 6 & chill
+
+** What that means
+
+   I am going to show you examples of Perl 6 in these source blocks:
+
+   #+begin_src perl6
+   say $*PERL;
+   #+end_src
+
+   #+RESULTS:
+   : Perl 6 (6.c)
+
+   You are going to put forward queries and concerns.
+
+   We will resolve them together (hopefully).
+
+   ...And interject whatever you like.
+
+** Chilling is the best way to learn
+   I learned a lot by messing around and lurking in IRC.
+
+   irc.freenode.net#perl6
+
+   They are nice and helpful people.
+
+   It has it's own interpreter. Example:
+
+   #+BEGIN_SRC
+   15:16 < TimToady> m: say ('⚀' .. '⚅').roll(5)
+   15:16 <+camelia> rakudo-moar c27a00: OUTPUT«(⚁ ⚂ ⚅ ⚀ ⚀)␤»
+   #+END_SRC
+
+
+   And so does this presentation:
+
+   #+begin_src perl6
+   say ('⚀' .. '⚅').roll(5);
+   say "$*PERL - That's just how we " ~ List.^find_method('roll');
+   #+end_src
+
+   #+BEGIN_SRC
+   (⚃ ⚅ ⚅ ⚂ ⚁)
+   Perl 6 - That's just how we roll
+   #+END_SRC
+
+
+** But first
+   Perl 6 is defined by a test suite.
+
+   This test suite inspired by the Perl 6 design documents.
+
+   There is an implementation of Perl 6 called rakudo.
+
+   Almost Every month since ~2010 (?) the rakudo team package up a release.
+
+   They/we/them/everyone is calling December's Christmas release Perl v6.0c
+
+   (c is for Christmas)
+
+   ...Well technically we are calling the test suite that rakudo
+   passed at the time, version 6.0c.
+*** Yeah...
+   Not **everyone** is happy with this explanation
+
+   [[./img/xdgwat.png]]
+
+** Disclaimer
+
+   I've been hanging around Perl 6 stuff for about 7 months.
+
+   There is lots I don't know.
+
+   I will probably say at least one thing that is not true.
+
+   I probably already have.
+
+** Resources and Community
+*** General
+    http://perl6.org/
+    http://rakudo.org/
+*** Installing
+    https://github.com/tadzik/rakudobrew <= do this one
+    http://rakudo.org/how-to-get-rakudo/
+*** Info
+    http://docs.perl6.org/
+    https://perl6advent.wordpress.com/ <== recommended
+    http://modules.perl6.org/
+    https://design.perl6.org/
+
+    irc.freenode.net#perl6
+*** Repos
+    components
+    https://github.com/rakudo/rakudo
+    https://github.com/perl6/nqp/
+    https://github.com/MoarVM/MoarVM
+
+    https://github.com/perl6/specs
+    https://github.com/perl6/roast
+    https://github.com/perl6/doc
+
+* Perl 6
+** Simple
+   Perl 6 is a simple programming language.
+** Complex
+   ...But It turns out making a simple language involves a huge amount of
+   complexity.
+
+   Approximately 15+ years of complexity.
+** But
+   Simple in a thousand complicated ways *is better than*
+*** complicated in a thousand simple ways
+    #+begin_src php
+    # This DOESN'T print uno
+    print((1 == 1) ? "uno" : (1 == 2) ? "dos" : "tres");
+    # This DOESN't print 6
+    print(0 || 6);
+    # Why do I have // inside quotes..?
+    preg_match('/foo/','foo');
+    #+end_src
+
+*** complicated in one simple way
+    #+begin_src common-lisp
+      (defun pascal (n)
+        (genrow n '(1)))
+      (defun genrow (n l)
+        (when (< 0 n)
+          (print l)
+          (genrow (1- n) (cons 1 (newrow l)))))
+      (defun newrow (l)
+        (if (> 2 (length l))
+            '(1)
+          (cons (+ (car l) (cadr l)) (newrow (cdr l)))))
+    #+end_src
+
+*** Existing is better than not Existing
+   It exists. It's amazing.
+
+*** Rough Edges
+   But It has a *lot* of rough edges.
+
+   Sometimes you combine features and something beautiful happens
+
+   Sometimes it blows up
+
+* Lets begin
+
+  #+name: Pascal's triangle
+  #+begin_src perl6
+  my @pascals-triangle = [1], -> @prev { [0, |@prev Z+ |@prev, 0] } ... *;
+  @pascals-triangle[^10].join("\n").say;
+  #+end_src
+
+#+end_examples
+
+** Let's actually begin
+
+   This is not really what p6 is about!
+
+   The main feature of Perl 6 is how its features mix together.
+
+   If you understand the components you can understand the whole.
+
+   Otherwise it will look like a lot of Whatever (*).
+
+   Here's something simpler:
+
+   #+begin_src perl6
+   say "Nights before leap day:"; # used to be christmas :\
+   .say for Date.today ..^ Date.new('2016-02-29');
+   #+end_src
+
+   #+RESULTS:
+   #+begin_example
+   Nights before leap day:
+   2016-02-16
+   2016-02-17
+   2016-02-18
+   2016-02-19
+   2016-02-20
+   2016-02-21
+   2016-02-22
+   2016-02-23
+   2016-02-24
+   2016-02-25
+   2016-02-26
+   2016-02-27
+   2016-02-28
+#+end_example
+
+** p5 2 p6
+   Let's do some p5 to p6 to warm up.
+
+   p6 is usually cleaner and nicer. Translating p5 to p6 is easy.
+
+   But the point of p6 isn't to write p5 code in p6 syntax. It's to
+   think in p6 while writing p6.
+
+*** Two at a time Perl 5
+   Two at a time -- here it is in Perl 5
+   #+begin_src perl :results output
+      my @array = 0..9;
+
+      # two by two
+      for (my $i = 0; $i < @array; $i += 2) {
+          my $one = $array[$i];
+          my $two = $array[$i +1];
+          print "$one,$two\n";
+      }
+    #+end_src
+
+*** Two at a time Perl 6
+   But do easier in Perl 6.
+   #+begin_src perl6
+      my @array = ^10;
+
+      for @array -> $one,$two {
+          say "$one,$two";
+      }
+
+   #+end_src
+
+   #+RESULTS:
+   : 0,1
+   : 2,3
+   : 4,5
+   : 6,7
+   : 8,9
+
+*** Pushing while Iterating
+
+   You can do this in both p5 and p6
+   #+begin_src perl6
+     my @array = ^10;
+
+     for @array {
+         @array.push(42) when 5;
+         say "win" when 42;
+     }
+   #+end_src
+
+   #+RESULTS:
+   : win
+
+*** Lazy Iterators
+   You can't do this in p5!
+   #+begin_src perl6
+     my @array = '۰'..'۹';
+     for @array.kv -> $i, $number {
+         say "$i: $number";
+         @array.push: 42  if $number == 4;
+     }
+   #+end_src
+
+   #+begin_src
+   0: ۰
+   1: ۱
+   2: ۲
+   3: ۳
+   4: ۴
+   5: ۵
+   6: ۶
+   7: ۷
+   8: ۸
+   9: ۹
+   10: 42
+   #+end_src
+
+*** Containers and vivification
+
+    #+BEGIN_SRC perl6
+      my %hash;
+      my $var := %hash<foo><bar>; # bind to autoviv container
+      say %hash.gist; # empty output
+      $var = "I changed it!";
+      say %hash.gist;
+    #+END_SRC
+
+    #+BEGIN_SRC
+    foo => bar => I changed it!
+    #+END_SRC
+
+*** Oh yeh but let's just get this out of the way
+    It is slower.
+
+    #+begin_src shell
+    ( time perl6 -e '
+       my $str = "";
+       for 0..280_000 { $str ~= $_ }
+       say $str
+    ')  2>&1 >/dev/null
+    #+end_src
+
+    |      |           |
+    | real | 0m10.626s |
+    | user | 0m6.269s  |
+    | sys  | 0m4.346s  |
+
+    #+begin_src shell
+    ( time perl -E '
+    my $str = "";
+    for (0..100_000_000) { $str .= $_ }
+    say $str
+    ')  2>&1 >/dev/null
+    #+end_src
+
+    |      |          |
+    | real | 0m6.621s |
+    | user | 0m6.370s |
+    | sys  | 0m0.248s |
+
+**** Hrrrm like way slower
+
+     I intended to just show a quick loop example to give some example
+     of Perl 6 slowness.
+
+     This led me down a rabbit hole I'm not sure I wanted to go down....
+
+**** SO LETS FORGET ABOUT THAT!
+
+     Look at *join*!
+
+    #+begin_src shell
+    ( time perl6 -e '(0..5_000_000).join.say' )  2>&1 >/dev/null
+    #+end_src
+
+    |      |          |
+    | real | 0m6.521s |
+    | user | 0m6.102s |
+    | sys  | 0m0.394s |
+
+    #+begin_src shell
+    ( time perl -E 'say join "",0..5_000_000' )  2>&1 >/dev/null
+    #+end_src
+
+    |      |          |
+    | real | 0m1.229s |
+    | user | 0m1.022s |
+    | sys  | 0m0.201s |
+
+    It's almost FAST!
+
+**** And it's getting faster!!
+     [[http://tux.nl/Talks/CSV6/speed4.html]]
+
+     So no need to worry!
+**** ok,ok,ok what really happened
+
+     The first example isn't Ο(n).
+
+     It's also spending a lot of time in the kernel.
+
+     Here's the time(1) for different values of *n*
+
+     #+begin_src perl6
+     my $str = "";
+     for 0..20 { $str ~= $_};
+     say $str;
+     #+end_src
+
+
+    | n    | real      | user      | sys       |
+    |------+-----------+-----------+-----------|
+    | 100k | 0m1.293s  | 0m0.884s  | 0m0.406s  |
+    | 200k | 0m4.940s  | 0m3.173s  | 0m1.760s  |
+    | 300k | 0m11.611s | 0m7.155s  | 0m4.452s  |
+    | 400k | 0m21.428s | 0m12.796s | 0m8.621s  |
+    | 500k | 0m33.684s | 0m20.056s | 0m13.624s |
+    | 600k | 0m48.901s | 0m28.949s | 0m19.939s |
+
+    What's the time complexity?
+
+    #+begin_src perl6
+      sub delta(@list){
+          [ @list[1..*] Z- @list ];
+      }
+
+      # say 0..5 Z 6..10
+      my @t = 8,31,71,127,200,289;
+      my @ticks = (flat ' ','′'..'‴');
+      my @derivative = @t, *.&delta ... *;
+      say 't' ~ @ticks[.key] ~ ': ' ~ .value for @derivative[^4].pairs;
+    #+end_src
+
+    #+BEGIN_SRC
+    t : 8 31 71 127 200 289
+    t′: 23 40 56 73 89
+    t″: 17 16 17 16
+    t‴: -1 1 -1
+    #+END_SRC
+
+**** omg
+It's Ο(n²) -- Rough Edges
+
+...Apparently strings are immutable so it has to re-copy
+
+But this can be optimized later!
+**** And that explains all the time spent in the kernel!
+
+     #+BEGIN_SRC shell
+       strace -e trace=memory perl6 -e '
+          my str $str = "";
+          for 0..280_000 { $str ~= $_ }
+       ' 2>&1 >/dev/null |sed -e 's/\([a-z]*\).*/\1/' | sort | uniq -c
+     #+END_SRC
+
+     #+BEGIN_SRC shell
+       strace -e trace=memory perl -E '
+       my $str = "";
+       for (0..100_000_000) { $str .= $_ }
+       say $str
+       ' 2>&1 >/dev/null |sed -e 's/\([a-z]*\).*/\1/' | sort | uniq -c
+     #+END_SRC
+
+     | p6 (280k) | p5 (100_000k) | syscall  |
+     |-----------+---------------+----------|
+     |      1429 |             8 | brk      |
+     |      3588 |            23 | mmap     |
+     |        74 |            14 | mprotect |
+     |         2 |            36 | mremap   |
+     |      3423 |             2 | munmap   |
+
+**** So now that we know Perl 6 is fast
+     On the plus side. Lots of room for optimization.
+
+     Let's get back to it!
+
+** Pascals triangle revisited
+   So now we know 'bout Z and ...* lets tackle that pascals triangle again.
+
+   #+BEGIN_SRC perl6
+   my @pascals = [1], -> @prev { [0, |@prev Z+ |@prev, 0] } ... *;
+   say @pascals[^5].join("\n");
+   #+END_SRC
+
+   #+BEGIN_SRC
+        1
+       1 1
+      1 2 1
+     1 3 3 1
+    1 4 6 4 1
+   #+END_SRC
+
+   See not so crazy after all :)
+
+*** Oh and clojure can do something similar
+
+   #+BEGIN_SRC clojure
+     (def pascal
+       (iterate #(concat [1]
+                         (map + % (rest %))
+                         [1])
+                [1]))
+   #+END_SRC
+   but not quite as cool
+
+* END OF PART 1
