@@ -299,9 +299,9 @@
    You can't do this in p5!
    #+begin_src perl6
      my @array = '۰'..'۹';
-     for @array.kv -> $i, $number {
-         say "$i: $number";
-         @array.push: 42  if $number == 4;
+     for @array.kv -> $i, $_ {
+         say "$i: $_";
+         @array.push: 42  when 4;
      }
    #+end_src
 
