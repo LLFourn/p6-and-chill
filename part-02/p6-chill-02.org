@@ -1,0 +1,163 @@
+# -*-coding: utf-8-*-
+#+TITLE: Perl 6 & chill
+#+EMAIL: lloyd.fourn@gmail.com
+#+AUTHOR: Lloyd Fournier
+
+* Part 2 - Types
+
+** Types
+
+  In Perl 6, everything is an Object.
+
+  Most of the time you don't have to worry about it.
+
+  But there are lots of types behind the scenes.
+
+*** Some types
+
+  #+BEGIN_SRC perl6
+    say True.WHAT;
+    say 'foo'.WHAT;
+    say 1.WHAT;
+    say {}.WHAT;
+    say [].WHAT;
+    say (1,2,3).WHAT;
+    say (1..3).WHAT;
+    say (^10).grep(* %% 2).WHAT;
+    say (|^10).WHAT;
+    say *.WHAT;
+    say *.some-method.WHAT;
+    say sub { }.WHAT;
+    say start { }.WHAT;
+    say (1|2).WHAT;
+    say ('cat' ~~ /a/).WHAT;
+    say $*PERL.WHAT;
+  #+END_SRC
+
+
+  #+BEGIN_SRC
+  (Bool)
+  (Str)
+  (Int)
+  (Hash)
+  (Array)
+  (List)
+  (Range)
+  (Seq)
+  (Slip)
+  (Whatever)
+  (WhateverCode)
+  (Sub)
+  (Promise)
+  (Junction)
+  (Match)
+  (Perl)
+  #+END_SRC
+
+*** Some more
+http://docs.perl6.org/type/Any
+
+** EXAMPLE: deep grep
+Recursively descend things, collecting everything that matches a test.
+
+*** Perl 5
+
+#+BEGIN_SRC perl :results output
+  use warnings;
+  use strict;
+  use feature 'say';
+
+  sub deepgrep {
+      my ($test,@things) = @_;
+      map {
+          ref eq 'HASH'  ? deepgrep($test,%$_) :
+          ref eq 'ARRAY' ? deepgrep($test,@$_) :
+          eval { $test->($_) } ? $_ : ();
+      } @things;
+  }
+
+  #================
+
+  my @data = (
+      0..10,
+      [{
+          one => "two",
+          three => [
+              qw/foo bar baz/
+          ],
+          four => {
+              herp => "derp",
+              murp => "lerp",
+          },
+      },qr/omgargex/],
+      sub { say "hello world" }
+  );
+
+  say join " ",deepgrep(sub { $_[0] > 4 },@data);
+  say join " ",deepgrep(sub { $_[0] % 2 == 0 },@data);
+  say join " ",deepgrep(sub { $_[0] =~ /ee/ }, @data);
+  say join " ",deepgrep(sub { ref $_[0] }, @data);
+#+END_SRC
+
+*** Perl 6
+#+BEGIN_SRC perl6
+  sub deepgrep(\test,@things) {
+     |@things.map: {
+          when Associative      { deepgrep(test,.kv) }
+          when Iterable         { deepgrep(test,$_) }
+          quietly try when test { $_ }
+          default               { Empty }
+      }
+  }
+
+  my @data =
+  3,  (0,1,*+* ...^ *>=100),
+  2i,1+3i,4i,
+  [{ one => "two", "three" => 4 },3i,],
+  [7, 8, [[6],],'᧢᧽᧴',pizza => '🍕'],
+  ('👻'&'😽'&'🐐'),
+  <Ayeo bee see>,
+  Backtrace.new,
+  Perl,Cool,Whatever,
+  -> { say "hello world" },
+  # BONUS CONCURRENCY!
+  # thread will start when element first accessed and block until ready
+  (100..110).map({ await start { sleep 0.1; $_ * 2 } }),
+  # thread will start right away. Block if accessed before it's finished.
+  await (200..210).map({ start { sleep 2; $_ * 2 } });
+
+  say deepgrep * > 4, @data;
+  say deepgrep {  $_ %% 2 when Numeric:D } , @data;
+  say deepgrep *.is-prime, @data;
+  say deepgrep /ee/, @data;
+  say deepgrep Str:D, @data;
+  say deepgrep { .ord >= 128 }, @data;
+  say deepgrep Complex:D, @data;
+  say deepgrep Any:U, @data;
+
+  say "===Not a String===";
+  say deepgrep !Str,@data; # WRONG!
+  say deepgrep !*.isa(Str), @data; # wrong (won't work for Junctions)
+  say deepgrep {$_ !~~ Str }, @data; # correct
+  subset NotAString of Any where { $_ !~~ Str }; # as a
+  say deepgrep NotAString,@data;
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+(5 8 13 21 34 55 89 7 8 6 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+(0 2 8 34 4 8 6 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+(3 2 3 5 13 89 7)
+(three bee see)
+(three one two ᧢᧽᧴ pizza 🍕 all(👻, 😽, 🐐) Ayeo bee see)
+(᧢᧽᧴ 🍕 all(👻, 😽, 🐐))
+(0+2i 1+3i 0+4i 0+3i)
+((Perl) (Cool) (Whatever))
+===Not a String===
+(3 0 1 1 2 3 5 8 13 21 34 55 89 0+2i 1+3i 0+4i three 4 one two 0+3i 7 8 6 ᧢᧽᧴ pizza 🍕 all(👻, 😽, 🐐) Ayeo bee see Backtrace.new (Perl) (Cool) (Whatever) ->  { #`(Block|95110616) ... } 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+(3 0 1 1 2 3 5 8 13 21 34 55 89 0+2i 1+3i 0+4i 4 0+3i 7 8 6 all(👻, 😽, 🐐) Backtrace.new (Perl) (Cool) (Whatever) ->  { #`(Block|95110616) ... } 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+(3 0 1 1 2 3 5 8 13 21 34 55 89 0+2i 1+3i 0+4i 4 0+3i 7 8 6 Backtrace.new (Perl) (Cool) (Whatever) ->  { #`(Block|95110616) ... } 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+(3 0 1 1 2 3 5 8 13 21 34 55 89 0+2i 1+3i 0+4i 4 0+3i 7 8 6 Backtrace.new (Perl) (Cool) (Whatever) ->  { #`(Block|95110616) ... } 200 202 204 206 208 210 212 214 216 218 220 400 402 404 406 408 410 412 414 416 418 420)
+#+end_example
+
+Perl 6 is complicated so that it can be simple.
